@@ -4,4 +4,4 @@ Sistema de e-commerce completo criado para ser utilizado como laboratório e par
 
 ## Fluxo
 
-![Fluxo do jotalab](jotalab.png)
+![Fluxo do jotalab](docs/jotalab.png)

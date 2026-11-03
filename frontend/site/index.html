@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jotalab · colecionáveis geek</title>
+  <meta name="description" content="jotalab: e-commerce geek criado como laboratório e para estudos.">
+  <meta name="theme-color" content="#F4F1EA">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="jotalab, página inicial">
+        <span class="brand-mark" aria-hidden="true">J</span>
+        <span class="brand-name">jotalab</span>
+      </a>
+
+      <div class="header-actions">
+        <!-- Só visual por enquanto: o login vai ser um service de autenticação -->
+        <button class="icon-button" type="button" aria-label="Entrar (em breve)">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/>
+            <path d="M4.5 20.5c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"
+                  fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <!-- Só visual por enquanto: o carrinho vai ser o service-cart -->
+        <button class="icon-button" type="button" aria-label="Carrinho (em breve), 0 itens">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6.1"
+                  fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9.5" cy="19.5" r="1.6" fill="currentColor"/>
+            <circle cx="17" cy="19.5" r="1.6" fill="currentColor"/>
+          </svg>
+          <span class="cart-count" aria-hidden="true">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <p class="stamp">Edição laboratório</p>
+        <h1 class="hero-title">E-commerce geek para fins de estudos e laboratórios</h1>
+      </div>
+    </section>
+
+    <section class="showcase container" aria-labelledby="showcase-title">
+      <div class="section-head">
+        <h2 id="showcase-title" class="section-title">Produtos</h2>
+        <p class="section-meta" id="product-count" aria-live="polite"></p>
+      </div>
+
+      <ul class="product-grid" id="product-grid" aria-busy="true">
+        <!-- Esqueletos enquanto os produtos carregam -->
+        <li class="product is-skeleton" aria-hidden="true"><div class="card"></div></li>
+        <li class="product is-skeleton" aria-hidden="true"><div class="card"></div></li>
+        <li class="product is-skeleton" aria-hidden="true"><div class="card"></div></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><strong>jotalab</strong> · e-commerce de laboratório, feito para estudos.</p>
+    </div>
+  </footer>
+
+  <template id="product-template">
+    <li class="product">
+      <article class="card">
+        <div class="card-media">
+          <img class="card-img" alt="" width="960" height="1200" loading="lazy" decoding="async">
+        </div>
+        <div class="card-body">
+          <p class="card-series"></p>
+          <h3 class="card-name"></h3>
+          <div class="card-footer">
+            <p class="card-price"></p>
+            <button class="add-button" type="button">Adicionar ao carrinho</button>
+          </div>
+        </div>
+      </article>
+    </li>
+  </template>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
