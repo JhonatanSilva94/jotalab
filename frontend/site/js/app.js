@@ -22,15 +22,15 @@ function renderCard(product, index) {
 
   const img = node.querySelector(".card-img");
   img.alt = product.name;
-  img.src = product.image;
+  img.src = product.imageUrl;
 
   node.querySelector(".card-series").textContent = product.series ?? "";
   node.querySelector(".card-name").textContent = product.name;
-  node.querySelector(".card-price").textContent = brl.format(Number(product.price));
+  node.querySelector(".card-price").textContent = brl.format(product.price / 100) // price vem em centavos;
 
   const button = node.querySelector(".add-button");
   button.setAttribute("aria-label", `Adicionar ${product.name} ao carrinho`);
-  button.dataset.productId = product.id;
+  button.dataset.productId = product.productId;
 
   return node;
 }

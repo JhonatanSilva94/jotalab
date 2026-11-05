@@ -1,3 +1,2 @@
-// Único lugar com a origem dos produtos.
-// Quando o service-products existir, troque para: "/api/products"
-export const PRODUCTS_URL = "data/products.json";
+// Único lugar com a origem dos produtos (gateway Nginx -> service-products).
+export const PRODUCTS_URL = "/api/products";

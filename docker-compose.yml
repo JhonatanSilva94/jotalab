@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - service-products
+
+  service-products:
+    build: ./services/products
+    # Sem "ports": só é acessível pela rede interna do Compose (via Nginx).
+    env_file: .env
+    environment:
+      TABLE_NAME: jotalab-products
