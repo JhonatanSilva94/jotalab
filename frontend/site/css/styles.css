@@ -21,6 +21,11 @@
   /* Curvas fortes (Emil Kowalski) */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Status de pedido */
+  --ok: #1F7A4D;
+  --warn: #9A6A00;
 
   /* Retícula (halftone) usada no hero e no fundo das imagens */
   --halftone: radial-gradient(color-mix(in srgb, var(--ink) 14%, transparent) 1.1px, transparent 1.4px);
@@ -429,4 +434,717 @@ button { font: inherit; color: inherit; }
   .product:hover .card-img { transform: none; }
   .add-button:active,
   .icon-button:active { transform: none; }
+}
+
+/* =========================================================
+   Conta: cabeçalho logado + modal Entrar/Cadastrar
+   ========================================================= */
+
+[hidden] { display: none !important; }
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.account-name {
+  margin: 0;
+  max-width: 16ch;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.95rem;
+}
+
+.account-name strong { font-weight: 700; }
+
+.logout-button {
+  min-height: 40px;
+  padding: 6px 14px;
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease;
+}
+
+.logout-button:active { transform: scale(0.97); }
+
+@media (max-width: 479px) {
+  .account-hello { display: none; }
+  .account-name { max-width: 9ch; }
+}
+
+/* ---------- Modal ---------- */
+
+.auth-dialog {
+  width: min(100% - 32px, 420px);
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: auto;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--offset) var(--offset) 0 var(--ink);
+
+  /* Entrada: 220ms ease-out a partir de scale(0.96) + opacity 0.
+     Modal fica centrado: transform-origin padrão (center) é o certo aqui. */
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 220ms var(--ease-out),
+    transform 220ms var(--ease-out),
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+
+/* Saída mais rápida que a entrada: o sistema respondendo, não o usuário decidindo */
+.auth-dialog:not([open]) {
+  opacity: 0;
+  transform: scale(0.96);
+  transition-duration: 150ms;
+}
+
+@starting-style {
+  .auth-dialog[open] { opacity: 0; transform: scale(0.96); }
+}
+
+.auth-dialog::backdrop {
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  opacity: 1;
+  transition:
+    opacity 220ms var(--ease-out),
+    overlay 220ms allow-discrete,
+    display 220ms allow-discrete;
+}
+
+.auth-dialog:not([open])::backdrop {
+  opacity: 0;
+  transition-duration: 150ms;
+}
+
+@starting-style {
+  .auth-dialog[open]::backdrop { opacity: 0; }
+}
+
+.auth-panel { padding: 22px 22px 24px; }
+
+.auth-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.auth-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.auth-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease;
+}
+
+.auth-close:active { transform: scale(0.97); }
+
+/* Seletor Entrar | Cadastrar: troca instantânea de conteúdo, só a cor transiciona */
+.auth-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 20px;
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.auth-switch button {
+  min-height: 42px;
+  background: var(--paper);
+  border: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.auth-switch button + button { border-left: var(--line) solid var(--ink); }
+
+.auth-switch button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--ink);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 1rem; /* 16px: evita o zoom automático do iOS no foco */
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.field input:focus-visible {
+  outline: none;
+  box-shadow: 3px 3px 0 var(--red);
+}
+
+.field input[aria-invalid="true"] { border-color: var(--red-deep); }
+
+.field-hint,
+.field-error {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.field-hint { color: var(--ink-soft); }
+
+.field-error {
+  color: var(--red-deep);
+  font-weight: 700;
+}
+
+.field-error:empty { display: none; }
+
+/* Erro do formulário (401, rede…): entra com fade + 4px para baixo */
+.form-error {
+  margin: 0;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--red) 12%, var(--paper));
+  border: 2px solid var(--red-deep);
+  border-radius: var(--radius);
+  color: var(--red-deep);
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+@starting-style {
+  .form-error { opacity: 0; transform: translateY(-4px); }
+}
+
+.submit-button {
+  margin-top: 4px;
+  min-height: 48px;
+  padding: 10px 16px;
+  background: var(--red);
+  color: var(--paper);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease, opacity 150ms ease;
+}
+
+.submit-button:active { transform: scale(0.97); }
+.submit-button:disabled { cursor: progress; opacity: 0.7; transform: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .logout-button:hover,
+  .auth-close:hover { background: var(--paper-2); }
+  .auth-switch button[aria-pressed="false"]:hover { background: var(--paper-2); }
+  .submit-button:not(:disabled):hover { background: var(--red-deep); }
+}
+
+/* Movimento reduzido: mantém os fades, tira escala e deslocamento */
+@media (prefers-reduced-motion: reduce) {
+  .auth-dialog,
+  .auth-dialog:not([open]) { transform: none; }
+  @starting-style {
+    .auth-dialog[open] { transform: none; }
+    .form-error { transform: none; }
+  }
+  .logout-button:active,
+  .auth-close:active,
+  .submit-button:active { transform: none; }
+}
+
+/* =========================================================
+   Carrinho, checkout e Meus pedidos
+   ========================================================= */
+
+/* Com qualquer modal/painel aberto, a página de trás não rola */
+html:has(dialog[open]) { overflow: hidden; }
+
+/* Aviso neutro no topo do login (ex.: "Sua sessão expirou") */
+.form-notice {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+@starting-style {
+  .form-notice { opacity: 0; transform: translateY(-4px); }
+}
+
+/* "Meus pedidos" no cabeçalho: link de texto */
+.orders-link {
+  min-height: 40px;
+  padding: 6px 4px;
+  background: none;
+  border: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  transition: color 150ms ease, text-decoration-color 150ms ease;
+}
+
+.orders-link-short { display: none; }
+
+@media (max-width: 479px) {
+  .account-name { display: none; }
+  .orders-link-long { display: none; }
+  .orders-link-short { display: inline; }
+  .header-actions { gap: 10px; }
+}
+
+@media (max-width: 359px) {
+  .brand-name { display: none; }
+}
+
+/* ---------- Painel lateral (drawer) ----------
+   Entra deslizando da direita (de onde fica o ícone do carrinho):
+   400ms com a curva de gaveta do iOS; sai em 250ms. */
+
+.drawer {
+  width: min(100%, 440px);
+  height: 100dvh;
+  max-width: 100%;
+  max-height: 100dvh;
+  margin: 0 0 0 auto;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  border: 0;
+  border-left: var(--line) solid var(--ink);
+  box-shadow: calc(var(--offset) * -1) 0 0 var(--ink);
+
+  transform: translateX(0);
+  transition:
+    transform 400ms var(--ease-drawer),
+    overlay 400ms allow-discrete,
+    display 400ms allow-discrete;
+}
+
+.drawer:not([open]) {
+  transform: translateX(100%);
+  transition-duration: 250ms;
+  transition-timing-function: var(--ease-out);
+}
+
+@starting-style {
+  .drawer[open] { transform: translateX(100%); }
+}
+
+.drawer::backdrop {
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  opacity: 1;
+  transition:
+    opacity 400ms var(--ease-out),
+    overlay 400ms allow-discrete,
+    display 400ms allow-discrete;
+}
+
+.drawer:not([open])::backdrop { opacity: 0; transition-duration: 250ms; }
+
+@starting-style {
+  .drawer[open]::backdrop { opacity: 0; }
+}
+
+.drawer-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: var(--line) solid var(--ink);
+}
+
+.drawer-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.drawer-view {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Lista rola; rodapé com total e botão fica sempre visível */
+.cart-lines {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  margin: 0;
+  padding: 8px 20px;
+}
+
+.cart-line {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 14px;
+  align-items: start;
+  padding: 16px 0;
+  transition: opacity 150ms ease;
+}
+
+.cart-line + .cart-line { border-top: 2px dashed color-mix(in srgb, var(--ink) 30%, transparent); }
+.cart-line[data-busy] { opacity: 0.6; }
+
+.cart-line-media {
+  width: 72px;
+  aspect-ratio: 4 / 5;
+  background-color: var(--paper-2);
+  background-image: var(--halftone);
+  background-size: 6px 6px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.cart-line-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.cart-line-info { min-width: 0; }
+
+.cart-line-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+}
+
+.cart-line-price {
+  margin: 2px 0 10px;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-line-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.cart-line-subtotal {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Quantidade − n + */
+.stepper {
+  display: inline-grid;
+  grid-template-columns: 36px 40px 36px;
+  height: 38px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+}
+
+.stepper button {
+  background: var(--paper);
+  border: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out), background-color 150ms ease;
+}
+
+.stepper button:first-child { border-right: 2px solid var(--ink); }
+.stepper button:last-child { border-left: 2px solid var(--ink); }
+.stepper button:active:not(:disabled) { transform: scale(0.94); }
+.stepper button:disabled { cursor: not-allowed; color: color-mix(in srgb, var(--ink) 35%, transparent); }
+
+.stepper-value {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.remove-button {
+  min-height: 38px;
+  padding: 4px 2px;
+  background: none;
+  border: 0;
+  color: var(--red-deep);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.remove-button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+.drawer-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px 20px;
+  border-top: var(--line) solid var(--ink);
+  background: var(--paper);
+}
+
+.cart-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.cart-total strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-total-note {
+  margin: -6px 0 2px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.drawer-foot .submit-button { margin-top: 0; }
+
+/* Vazio e sucesso */
+.drawer-empty,
+.drawer-success {
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 28px 24px;
+}
+
+.drawer-empty p,
+.drawer-success p { margin: 0; }
+.drawer-empty > p:not(.drawer-empty-title) { color: var(--ink-soft); }
+
+.drawer-empty-title,
+.drawer-success-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.drawer-success .stamp { margin: 0; }
+.drawer-success .submit-button,
+.drawer-success .logout-button { width: 100%; }
+
+/* Sucesso é raro (fim de uma compra): entrada um pouco mais marcada */
+.drawer-success:not([hidden]) > * {
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out);
+}
+
+@starting-style {
+  .drawer-success:not([hidden]) > * { opacity: 0; transform: translateY(8px); }
+}
+
+.drawer-success > :nth-child(2) { transition-delay: 40ms; }
+.drawer-success > :nth-child(3) { transition-delay: 80ms; }
+.drawer-success > :nth-child(n + 4) { transition-delay: 120ms; }
+
+.success-facts {
+  width: 100%;
+  margin: 8px 0;
+  border: var(--line) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: #fff;
+}
+
+.success-facts div { padding: 12px 14px; }
+.success-facts div + div { border-top: 2px dashed color-mix(in srgb, var(--ink) 30%, transparent); }
+
+.success-facts dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.success-facts dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Meus pedidos ---------- */
+
+.orders-dialog { width: min(100% - 32px, 560px); }
+
+.orders-status { margin: 0; color: var(--ink-soft); }
+.orders-status:empty { display: none; }
+
+.order-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.order-main { min-width: 0; }
+
+.order-id {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.order-date {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.order-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.order-total {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Selo de status: cor + texto (a cor nunca é a única pista) */
+.order-badge {
+  padding: 2px 8px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.order-badge[data-tone="ok"] { color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, #fff); }
+.order-badge[data-tone="fail"] { color: var(--red-deep); background: color-mix(in srgb, var(--red) 12%, #fff); }
+.order-badge[data-tone="warn"] { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, #fff); }
+.order-badge[data-tone="muted"] { color: var(--ink-soft); background: var(--paper-2); }
+
+@media (max-width: 419px) {
+  .order-row { flex-direction: column; }
+  .order-side { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .orders-link:hover { color: var(--red-deep); }
+  .stepper button:not(:disabled):hover { background: var(--paper-2); }
+  .remove-button:not(:disabled):hover { color: var(--red); }
+}
+
+/* Movimento reduzido: o painel aparece com fade, sem deslizar */
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer:not([open]) {
+    transform: none;
+    transition-property: opacity, overlay, display;
+    transition-duration: 200ms;
+  }
+  .drawer:not([open]) { opacity: 0; }
+  @starting-style {
+    .drawer[open] { transform: none; opacity: 0; }
+    .form-notice,
+    .drawer-success:not([hidden]) > * { transform: none; }
+  }
+  .stepper button:active:not(:disabled) { transform: none; }
 }

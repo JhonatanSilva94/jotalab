@@ -21,8 +21,18 @@
       </a>
 
       <div class="header-actions">
-        <!-- Só visual por enquanto: o login vai ser um service de autenticação -->
-        <button class="icon-button" type="button" aria-label="Entrar (em breve)">
+        <!-- Logado: nome + Meus pedidos + Sair (preenchido pelo js/auth.js) -->
+        <div class="account" id="account" hidden>
+          <p class="account-name"><span class="account-hello">Olá,</span> <strong id="account-name"></strong></p>
+          <button class="orders-link" type="button" id="orders-button" aria-haspopup="dialog" aria-controls="orders-dialog">
+            <span class="orders-link-long">Meus pedidos</span><span class="orders-link-short" aria-hidden="true">Pedidos</span>
+          </button>
+          <button class="logout-button" type="button" id="logout-button">Sair</button>
+        </div>
+
+        <!-- Deslogado: abre o modal de Entrar/Cadastrar -->
+        <button class="icon-button" type="button" id="login-button"
+                aria-label="Entrar ou cadastrar" aria-haspopup="dialog" aria-controls="auth-dialog">
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
             <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2.2"/>
             <path d="M4.5 20.5c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"
@@ -30,15 +40,16 @@
           </svg>
         </button>
 
-        <!-- Só visual por enquanto: o carrinho vai ser o service-cart -->
-        <button class="icon-button" type="button" aria-label="Carrinho (em breve), 0 itens">
+        <!-- Carrinho: abre o painel lateral (js/cart.js) -->
+        <button class="icon-button" type="button" id="cart-button"
+                aria-label="Carrinho, 0 itens" aria-haspopup="dialog" aria-controls="cart-drawer">
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
             <path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 8H6.1"
                   fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="9.5" cy="19.5" r="1.6" fill="currentColor"/>
             <circle cx="17" cy="19.5" r="1.6" fill="currentColor"/>
           </svg>
-          <span class="cart-count" aria-hidden="true">0</span>
+          <span class="cart-count" id="cart-count" aria-hidden="true">0</span>
         </button>
       </div>
     </div>
@@ -88,6 +99,151 @@
           </div>
         </div>
       </article>
+    </li>
+  </template>
+
+  <!-- Modal de Entrar / Cadastrar. <dialog> nativo: foco preso, Esc fecha. -->
+  <dialog class="auth-dialog" id="auth-dialog" aria-labelledby="auth-title">
+    <div class="auth-panel">
+      <div class="auth-head">
+        <h2 class="auth-title" id="auth-title">Entrar</h2>
+        <button class="auth-close" type="button" id="auth-close" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="form-notice" id="auth-notice" role="status" hidden></p>
+
+      <div class="auth-switch" role="group" aria-label="Escolha uma opção">
+        <button type="button" data-mode="login" aria-pressed="true">Entrar</button>
+        <button type="button" data-mode="signup" aria-pressed="false">Cadastrar</button>
+      </div>
+
+      <form class="auth-form" id="auth-form" novalidate>
+        <div class="field" data-field="name" hidden>
+          <label for="auth-name">Nome</label>
+          <input id="auth-name" name="name" type="text" autocomplete="name" maxlength="80"
+                 aria-describedby="auth-name-error">
+          <p class="field-error" id="auth-name-error"></p>
+        </div>
+
+        <div class="field" data-field="email">
+          <label for="auth-email">E-mail</label>
+          <input id="auth-email" name="email" type="email" autocomplete="email" inputmode="email"
+                 spellcheck="false" autocapitalize="none" aria-describedby="auth-email-error">
+          <p class="field-error" id="auth-email-error"></p>
+        </div>
+
+        <div class="field" data-field="password">
+          <label for="auth-password">Senha</label>
+          <input id="auth-password" name="password" type="password" autocomplete="current-password"
+                 aria-describedby="auth-password-hint auth-password-error">
+          <p class="field-hint" id="auth-password-hint" hidden>Mínimo de 8 caracteres.</p>
+          <p class="field-error" id="auth-password-error"></p>
+        </div>
+
+        <p class="form-error" id="auth-form-error" role="alert" hidden></p>
+
+        <button class="submit-button" type="submit" id="auth-submit">Entrar</button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Painel lateral do carrinho. <dialog> nativo: foco preso, Esc fecha. -->
+  <dialog class="drawer" id="cart-drawer" aria-labelledby="cart-title">
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <h2 class="drawer-title" id="cart-title">Carrinho</h2>
+        <button class="auth-close" type="button" data-close aria-label="Fechar carrinho">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Estado: com itens -->
+      <div class="drawer-view" id="cart-view-items">
+        <ul class="cart-lines" id="cart-lines"></ul>
+        <div class="drawer-foot">
+          <p class="form-error" id="cart-message" role="alert" hidden></p>
+          <div class="cart-total">
+            <span>Total estimado</span>
+            <strong id="cart-total">R$ 0,00</strong>
+          </div>
+          <p class="cart-total-note">O valor final é confirmado ao finalizar.</p>
+          <button class="submit-button" type="button" id="checkout-button">Finalizar compra</button>
+        </div>
+      </div>
+
+      <!-- Estado: vazio -->
+      <div class="drawer-view drawer-empty" id="cart-view-empty" hidden>
+        <p class="form-notice" id="cart-empty-notice" role="status" hidden></p>
+        <p class="drawer-empty-title">Seu carrinho está vazio</p>
+        <p>Escolha um produto na vitrine e ele aparece aqui.</p>
+        <button class="logout-button" type="button" data-close>Ver produtos</button>
+      </div>
+
+      <!-- Estado: pedido confirmado -->
+      <div class="drawer-view drawer-success" id="cart-view-success" hidden>
+        <p class="stamp">Pedido confirmado</p>
+        <p class="drawer-success-title">Valeu pela compra!</p>
+        <dl class="success-facts">
+          <div><dt>Número do pedido</dt><dd id="success-order-id"></dd></div>
+          <div><dt>Total pago</dt><dd id="success-total"></dd></div>
+        </dl>
+        <button class="submit-button" type="button" id="success-orders-button">Ver meus pedidos</button>
+        <button class="logout-button" type="button" data-close>Continuar comprando</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Meus pedidos -->
+  <dialog class="auth-dialog orders-dialog" id="orders-dialog" aria-labelledby="orders-title">
+    <div class="auth-panel">
+      <div class="auth-head">
+        <h2 class="auth-title" id="orders-title">Meus pedidos</h2>
+        <button class="auth-close" type="button" data-close aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="orders-status" id="orders-status" role="status"></p>
+      <ul class="order-list" id="order-list"></ul>
+    </div>
+  </dialog>
+
+  <template id="cart-line-template">
+    <li class="cart-line">
+      <div class="cart-line-media"><img class="cart-line-img" alt="" width="72" height="90" decoding="async"></div>
+      <div class="cart-line-info">
+        <p class="cart-line-name"></p>
+        <p class="cart-line-price"></p>
+        <div class="cart-line-actions">
+          <div class="stepper" role="group">
+            <button type="button" data-action="dec">−</button>
+            <output class="stepper-value" aria-live="polite"></output>
+            <button type="button" data-action="inc">+</button>
+          </div>
+          <button class="remove-button" type="button" data-action="remove">Remover</button>
+        </div>
+      </div>
+      <p class="cart-line-subtotal"></p>
+    </li>
+  </template>
+
+  <template id="order-row-template">
+    <li class="order-row">
+      <div class="order-main">
+        <p class="order-id"></p>
+        <p class="order-date"></p>
+      </div>
+      <div class="order-side">
+        <p class="order-total"></p>
+        <span class="order-badge"></span>
+      </div>
     </li>
   </template>
 

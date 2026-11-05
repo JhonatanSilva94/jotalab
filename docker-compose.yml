@@ -5,6 +5,9 @@ services:
       - "8080:80"
     depends_on:
       - service-products
+      - service-login
+      - service-cart
+      - service-orders
 
   service-products:
     build: ./services/products
@@ -12,3 +15,47 @@ services:
     env_file: .env
     environment:
       TABLE_NAME: jotalab-products
+
+  service-login:
+    build: ./services/login
+    # Sem "ports": só é acessível pela rede interna do Compose (via Nginx).
+    env_file: .env
+    environment:
+      TABLE_NAME: jotalab-users
+
+  # Interno: sem rota no gateway; só o service-orders chama.
+  service-inventory:
+    build: ./services/inventory
+    env_file: .env
+    environment:
+      TABLE_NAME: jotalab-inventory
+
+  # Interno e simulado: sem rota no gateway; só o service-orders chama.
+  service-payments:
+    build: ./services/payments
+    env_file: .env
+    environment:
+      TABLE_NAME: jotalab-payments
+      PAYMENT_FAILURE_RATE: ${PAYMENT_FAILURE_RATE:-0.0}  # padrão 0.0; sobrescreva no shell para testar recusas
+
+  service-cart:
+    build: ./services/cart
+    # Sem "ports": /cart via Nginx; /internal/cart só pela rede interna.
+    env_file: .env
+    environment:
+      TABLE_NAME: jotalab-cart
+
+  service-orders:
+    build: ./services/orders
+    env_file: .env
+    environment:
+      TABLE_NAME: jotalab-orders
+      PRODUCTS_URL: http://service-products:8080
+      CART_URL: http://service-cart:8080
+      INVENTORY_URL: http://service-inventory:8080
+      PAYMENTS_URL: http://service-payments:8080
+    depends_on:
+      - service-products
+      - service-cart
+      - service-inventory
+      - service-payments
